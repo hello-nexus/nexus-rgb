@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Editor leftovers
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build artifacts that occasionally land in this folder while iterating
+*.exe
+*.dll
+*.zip
+*.tar.gz
+artifacts/
+
+# Deep-build session logs are local working docs only
+.deep-build/
