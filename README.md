@@ -136,7 +136,11 @@ That's 53,000+ lines of GUI code removed. Total non-controller diff vs. upstream
 (GCC + make) builds on every push and uploads bundled artifacts:
 
 - `OpenRGB-headless.exe` + `hidapi.dll` + `libusb-1.0.dll` + `PawnIOLib.dll` +
-  `LICENSE-OpenRGB.txt` + `README.txt` (Windows)
+  `SmbusI801.bin` + `SmbusPIIX4.bin` + `SmbusNCT6793.bin` + `LpcIO.bin` +
+  `LICENSE-OpenRGB.txt` + `README.txt` (Windows). The `*.bin` files are PawnIO
+  chipset modules — PawnIOLib loads them at runtime to probe SMBus. Without
+  them, RGB DRAM is invisible to OpenRGB. CI fails the Windows job if any
+  required module is missing.
 - `OpenRGB-headless` + `LICENSE-OpenRGB.txt` + `README.txt` (Linux)
 
 Both are tagged with the upstream source URL for GPL §3 compliance. We download
@@ -204,7 +208,8 @@ files we never want.
 │    OpenRGB-headless.exe   ← binary from this fork's CI      │
 │    hidapi.dll                                               │
 │    libusb-1.0.dll                                           │
-│    PawnIOLib.dll                                            │
+│    PawnIOLib.dll          ← (csproj-injected from pawnio/)  │
+│    Smbus*.bin / LpcIO.bin ← (csproj-injected from pawnio/)  │
 │    LICENSE-OpenRGB.txt                                      │
 │                                                             │
 │  Communicates via TCP loopback ─────────────┐               │
