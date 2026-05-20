@@ -1,20 +1,8 @@
 # qos-rgb
 
-This folder is the local workspace for our **OpenRGB-related work**. There are
-two distinct projects living here.
+Workspace for [Qos](https://nexusqos.com)'s **headless OpenRGB fork** — the RGB engine that [`qos-service`](https://github.com/nexusqos/qos-service) embeds as a child process to drive 183 supported RGB devices without bundling Qt. The public fork lives at [`nexusqos/openrgb-headless`](https://github.com/nexusqos/openrgb-headless) (GPLv2); this repo is the workspace that builds it, ships helper scripts (`bundle-macos.sh`, `scripts/`), and documents what we changed against upstream and how to keep merging from it.
 
-| Folder | Project | Status |
-|---|---|---|
-| `openrgb-headless/` | A clone of [`nexusqos/openrgb-headless`](https://github.com/nexusqos/openrgb-headless) — our headless fork of upstream OpenRGB. **Shipping today.** | Active, used in production by `qos-service` |
-| `PLAN.md` | A separate, future-looking design document for an "OpenRGB reliability improvements" effort modelled on SignalRGB. **Not started.** | Future work, untouched by the headless fork |
-
-The two are independent: the headless fork is a packaging change (smaller binary,
-no Qt), while `PLAN.md` is about architectural improvements to controller
-reliability. Don't conflate them.
-
-The rest of this document is about what was done to produce the **headless
-fork**, why each decision was made, and how to keep merging upstream updates
-without breaking it.
+The rest of this document is about what was done to produce the headless fork, why each decision was made, and how to keep merging upstream updates without breaking it.
 
 ---
 
@@ -243,4 +231,3 @@ the fork's CI run after each successful build.
 - We **physically deleted** ~53k lines of GUI code from the fork. The rest is byte-identical to upstream.
 - We **don't touch upstream-shared files** (controllers, networking, detection, resource management). All changes are concentrated in `OpenRGB.pro`, `startup/*.cpp`, and the deleted directories.
 - We **commit to maintaining upstream compatibility** so we can keep merging new device support, protocol fixes, and hardware detector improvements from upstream. The conflict-resolution playbook is in [`openrgb-headless/MAINTAINING.md`](openrgb-headless/MAINTAINING.md).
-- The `PLAN.md` next to this README is **a separate, future-looking document** about OpenRGB reliability improvements. Don't conflate it with the headless fork — they're independent efforts.
