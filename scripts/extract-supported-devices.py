@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / "openrgb-headless" / "Controllers"
-OUT = Path(__file__).resolve().parents[2] / "qos-service" / "Lighting" / "Rgb" / "openrgb-supported-devices.json"
+OUT = Path(__file__).resolve().parents[2] / "qos-service" / "data" / "openrgb-supported-devices.json"
 
 # Match REGISTER_*_DETECTOR( "name" , identifier , ... ) including multi-line
 MACRO_RE = re.compile(
