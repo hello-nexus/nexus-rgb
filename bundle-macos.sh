@@ -4,13 +4,13 @@
 # can be copied anywhere.
 #
 # Usage: ./bundle-macos.sh [output-dir]
-# Default output-dir is ../qos-service/Bundled/osx-arm64/openrgb/
+# Default output-dir is ../nexus-service/Bundled/osx-arm64/openrgb/
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC="$SCRIPT_DIR/openrgb-headless/OpenRGB"
-OUT="${1:-$SCRIPT_DIR/../qos-service/Bundled/osx-arm64/openrgb}"
+OUT="${1:-$SCRIPT_DIR/../nexus-service/Bundled/osx-arm64/openrgb}"
 
 if [ ! -f "$SRC" ]; then
     echo "ERROR: openrgb-headless binary not found at $SRC" >&2

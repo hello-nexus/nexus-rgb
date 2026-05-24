@@ -1,6 +1,6 @@
-# qos-rgb
+# nexus-rgb
 
-Workspace for [Qos](https://nexusqos.com)'s **headless OpenRGB fork** — the RGB engine that [`qos-service`](https://github.com/nexusqos/qos-service) embeds as a child process to drive 183 supported RGB devices without bundling Qt. The public fork lives at [`nexusqos/openrgb-headless`](https://github.com/nexusqos/openrgb-headless) (GPLv2); this repo is the workspace that builds it, ships helper scripts (`bundle-macos.sh`, `scripts/`), and documents what we changed against upstream and how to keep merging from it.
+Workspace for [Nexus](https://nexusqos.com)'s **headless OpenRGB fork** — the RGB engine that [`nexus-service`](https://github.com/nexusqos/nexus-service) embeds as a child process to drive 183 supported RGB devices without bundling Qt. The public fork lives at [`nexusqos/openrgb-headless`](https://github.com/nexusqos/openrgb-headless) (GPLv2); this repo is the workspace that builds it, ships helper scripts (`bundle-macos.sh`, `scripts/`), and documents what we changed against upstream and how to keep merging from it.
 
 The rest of this document is about what was done to produce the headless fork, why each decision was made, and how to keep merging upstream updates without breaking it.
 
@@ -10,7 +10,7 @@ The rest of this document is about what was done to produce the headless fork, w
 
 A **headless fork of OpenRGB** that strips Qt entirely (Widgets, Gui, Core,
 DBus) and ships only the SDK server. The motivation was concrete: we wanted to
-embed OpenRGB inside `qos-service` as a child process so the .NET service
+embed OpenRGB inside `nexus-service` as a child process so the .NET service
 could control the user's RGB hardware over loopback TCP, without bundling 12+
 MiB of Qt runtime DLLs that the SDK server never actually uses at runtime.
 
@@ -29,7 +29,7 @@ The fork lives at:
 - **Public**: https://github.com/nexusqos/openrgb-headless (GPLv2 fork; we're
   obligated to make the source available since we redistribute the binary)
 - **Local**: `./openrgb-headless/` (this folder)
-- **Bundled into**: `qos-service/Bundled/win-x64/openrgb/` (~7.4 MiB
+- **Bundled into**: `nexus-service/Bundled/win-x64/openrgb/` (~7.4 MiB
   binary + DLLs + LICENSE)
 
 ---
@@ -132,7 +132,7 @@ That's 53,000+ lines of GUI code removed. Total non-controller diff vs. upstream
 - `OpenRGB-headless` + `LICENSE-OpenRGB.txt` + `README.txt` (Linux)
 
 Both are tagged with the upstream source URL for GPL §3 compliance. We download
-the Windows artifact and drop it into `qos-service/Bundled/win-x64/openrgb/`.
+the Windows artifact and drop it into `nexus-service/Bundled/win-x64/openrgb/`.
 
 ---
 
@@ -179,11 +179,11 @@ files we never want.
 
 ---
 
-## Where this lives in the broader qos architecture
+## Where this lives in the broader nexus architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  qos-service (.NET 10 Native AOT)                      │
+│  nexus-service (.NET 10 Native AOT)                      │
 │                                                             │
 │  Lighting/Rgb/                                              │
 │    OpenRgbController.cs   ← TCP client (AOT-safe)           │
@@ -210,7 +210,7 @@ files we never want.
 ┌──────────────────────────────────────────────────────────────┐
 │  OpenRGB-headless.exe (this fork)                            │
 │                                                              │
-│  - Spawned on demand by qos-service                     │
+│  - Spawned on demand by nexus-service                     │
 │  - Detects RGB hardware (HID, I2C, SMBus, serial)            │
 │  - Runs the SDK server on TCP 6742                           │
 │  - No GUI, no system tray, no plugins                        │
@@ -227,7 +227,7 @@ the fork's CI run after each successful build.
 
 ## TL;DR
 
-- The fork is **shipping today**, embedded in `qos-service` as a child process.
+- The fork is **shipping today**, embedded in `nexus-service` as a child process.
 - We **physically deleted** ~53k lines of GUI code from the fork. The rest is byte-identical to upstream.
 - We **don't touch upstream-shared files** (controllers, networking, detection, resource management). All changes are concentrated in `OpenRGB.pro`, `startup/*.cpp`, and the deleted directories.
 - We **commit to maintaining upstream compatibility** so we can keep merging new device support, protocol fixes, and hardware detector improvements from upstream. The conflict-resolution playbook is in [`openrgb-headless/MAINTAINING.md`](openrgb-headless/MAINTAINING.md).
