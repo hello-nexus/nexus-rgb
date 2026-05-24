@@ -22,7 +22,7 @@ Result:
 | Our headless fork (Windows x64, full bundle with hidapi/libusb/PawnIO DLLs) | **~7.4 MiB** |
 | Our headless fork (Linux x64, dynamic) | **~11 MiB** |
 
-The 183 device controllers and the SDK protocol are unchanged from upstream.
+The device controllers and the SDK protocol are unchanged from upstream.
 
 The fork lives at:
 
@@ -216,7 +216,7 @@ files we never want.
 │  - No GUI, no system tray, no plugins                        │
 │                                                              │
 │  Hardware: Razer mouse, Corsair mouse, Gigabyte mobo,        │
-│  NVIDIA GPU, etc. — 183 controllers worth                    │
+│  NVIDIA GPU, etc. — the full upstream set                    │
 └──────────────────────────────────────────────────────────────┘
 ```
 
