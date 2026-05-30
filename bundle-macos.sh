@@ -64,7 +64,7 @@ cp "$SCRIPT_DIR/openrgb-headless/LICENSE" "$OUT/LICENSE-OpenRGB.txt"
 cat > "$OUT/README.txt" <<EOF
 OpenRGB headless build
 ----------------------
-Source: https://github.com/nexusqos/openrgb-headless
+Source: https://github.com/hello-nexus/openrgb-headless
 License: GPL-2.0-or-later (see LICENSE-OpenRGB.txt)
 EOF
 

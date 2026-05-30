@@ -1,6 +1,6 @@
 # nexus-rgb
 
-Workspace for [Nexus](https://hellonexus.com)'s **headless OpenRGB fork** — the RGB engine that [`nexus-service`](https://github.com/nexusqos/nexus-service) embeds as a child process to drive 183 supported RGB devices without bundling Qt. The public fork lives at [`nexusqos/openrgb-headless`](https://github.com/nexusqos/openrgb-headless) (GPLv2); this repo is the workspace that builds it, ships helper scripts (`bundle-macos.sh`, `scripts/`), and documents what we changed against upstream and how to keep merging from it.
+Workspace for [Nexus](https://hellonexus.com)'s **headless OpenRGB fork** — the RGB engine that [`nexus-service`](https://github.com/hello-nexus/nexus-service) embeds as a child process to drive 183 supported RGB devices without bundling Qt. The public fork lives at [`hello-nexus/openrgb-headless`](https://github.com/hello-nexus/openrgb-headless) (GPLv2); this repo is the workspace that builds it, ships helper scripts (`bundle-macos.sh`, `scripts/`), and documents what we changed against upstream and how to keep merging from it.
 
 The rest of this document is about what was done to produce the headless fork, why each decision was made, and how to keep merging upstream updates without breaking it.
 
@@ -26,7 +26,7 @@ The device controllers and the SDK protocol are unchanged from upstream.
 
 The fork lives at:
 
-- **Public**: https://github.com/nexusqos/openrgb-headless (GPLv2 fork; we're
+- **Public**: https://github.com/hello-nexus/openrgb-headless (GPLv2 fork; we're
   obligated to make the source available since we redistribute the binary)
 - **Local**: `./openrgb-headless/` (this folder)
 - **Bundled into**: `nexus-service/Bundled/win-x64/openrgb/` (~7.4 MiB
