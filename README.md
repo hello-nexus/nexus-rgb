@@ -285,3 +285,13 @@ local build (see [Building](#building)).
 - We **physically deleted** ~53k lines of GUI code from the fork. The rest is byte-identical to upstream.
 - We **don't touch upstream-shared files** (controllers, networking, detection, resource management). All changes are concentrated in `OpenRGB.pro`, `startup/*.cpp`, and the deleted directories.
 - We **commit to maintaining upstream compatibility** so we can keep merging new device support, protocol fixes, and hardware detector improvements from upstream. The conflict-resolution playbook is in [`openrgb-headless/MAINTAINING.md`](openrgb-headless/MAINTAINING.md).
+
+## License
+
+This workspace (`bundle-macos.sh`, `scripts/`, and docs) is licensed under the
+**GNU Affero General Public License v3.0** (AGPL-3.0); see [`LICENSE`](LICENSE).
+The headless OpenRGB fork it builds and bundles
+([`hello-nexus/openrgb-headless`](https://github.com/hello-nexus/openrgb-headless))
+remains under OpenRGB's GPLv2, as required by upstream.
+
+Copyright (C) 2026 Hello Nexus
