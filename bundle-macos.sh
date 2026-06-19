@@ -44,7 +44,7 @@ for lib in $dylibs; do
 done
 
 # Rewrite dylib references inside each copied dylib (for cross-dylib deps).
-# mbedtls dylibs cross-reference each other via @rpath/ — rewrite those too.
+# mbedtls dylibs cross-reference each other via @rpath/ - rewrite those too.
 for lib in "$OUT"/*.dylib; do
     [ -f "$lib" ] || continue
     basename=$(basename "$lib")
