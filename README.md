@@ -144,13 +144,12 @@ and packaged by `bundle-macos.sh` (see [Building](#building)).
 
 ### Get the fork
 
-`./openrgb-headless/` holds the fork checkout (the `headless` branch of
-[`hello-nexus/openrgb-headless`](https://github.com/hello-nexus/openrgb-headless)).
-The path is planned to become a git submodule; until that registration
-lands, clone it in place:
+`./openrgb-headless/` is a git submodule tracking the `headless` branch of
+[`hello-nexus/openrgb-headless`](https://github.com/hello-nexus/openrgb-headless).
+A fresh clone needs it initialized:
 
 ```bash
-git clone --branch headless https://github.com/hello-nexus/openrgb-headless.git openrgb-headless
+git submodule update --init openrgb-headless
 ```
 
 ### Build the binary

@@ -1,3 +1,4 @@
-# openrgb-headless submodule will be added during Phase 9 (GitHub push).
-# Target URL: https://github.com/hello-nexus/openrgb-headless.git
-# Branch: headless
+[submodule "openrgb-headless"]
+	path = openrgb-headless
+	url = https://github.com/hello-nexus/openrgb-headless.git
+	branch = headless
