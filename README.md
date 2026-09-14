@@ -45,9 +45,10 @@ ruled out simply linking against an existing C# OpenRGB library:
 1. Our service is `<PublishAot>true</PublishAot>` (Native AOT). Every existing
    .NET RGB library (RGB.NET, OpenRGB.NET) uses runtime reflection and isn't
    AOT-safe.
-2. OpenRGB itself is GPL-2.0 and we ship as private source. We comply via
-   "mere aggregation": we run OpenRGB as a separate process and talk to it via
-   loopback TCP. No linking, no ABI coupling.
+2. OpenRGB itself is GPL-2.0 and Nexus ships under AGPL-3.0, which is not
+   GPL-2.0-compatible for linking. We comply via "mere aggregation": we run
+   OpenRGB as a separate process and talk to it via loopback TCP. No linking,
+   no ABI coupling.
 3. The official OpenRGB Windows portable is 25 MiB extracted. Of that, ~12 MiB
    is Qt5 runtime DLLs that the `--server` code path doesn't actually use.
 
