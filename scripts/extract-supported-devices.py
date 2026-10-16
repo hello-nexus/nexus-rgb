@@ -183,16 +183,23 @@ class Types:
                 return self.only(direct)
             found: set[str] = set()
             for cls in set(re.findall(r"new\s+(RGBController_\w+)", body)):
-                ctor = re.compile(re.escape(cls) + r"::" + re.escape(cls) + r"\s*\(")
-                for _, t in self.sources(top):
-                    cm = ctor.search(t)
-                    if cm:
-                        tm = re.search(r"\btype\s*=\s*DEVICE_TYPE_([A-Z_]+)", t[cm.end():cm.end() + 4000])
-                        if tm:
-                            found.add(tm.group(1))
-                        break
+                found |= self.constructor_types(top, cls)
             return self.only(found)
         return None
+
+    def constructor_types(self, top: str, cls: str) -> set[str]:
+        """Every type the class constructor assigns; more than one means it is per-device."""
+        ctor = re.compile(re.escape(cls) + r"::" + re.escape(cls) + r"\s*\([^;{]*\)\s*(?::[^{;]*)?\{")
+        for _, t in self.sources(top):
+            cm = ctor.search(t)
+            if not cm:
+                continue
+            depth, i = 1, cm.end()
+            while i < len(t) and depth:
+                depth += (t[i] == "{") - (t[i] == "}")
+                i += 1
+            return set(re.findall(r"\btype\s*=\s*DEVICE_TYPE_([A-Z_]+)", t[cm.end():i]))
+        return set()
 
     def by_folder(self, top: str, folder: Path) -> str | None:
         found = {
