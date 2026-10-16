@@ -10,6 +10,11 @@ Output rows: {name, vid, pid, controller, kind}
                 A wildcard such as HID_PID_ANY stays null.
 - controller  : the parent Controllers/<X>/ folder
 - kind        : "hid" | "i2c" | "smbus" | "dynamic" | "remote" | "generic"
+- type        : lowercase OpenRGB device type (mouse, keyboard, ...) the fork declares for
+                the device, or null when it cannot be resolved statically. Resolution order:
+                a device table entry keyed by the detector's PID constant, the controller
+                class the detector function instantiates, then the controller folder when it
+                declares exactly one type.
 
 Usage: extract-supported-devices.py [<Controllers dir> [<output json>]]
 The defaults assume nexus-rgb/ and nexus-service/ sit side by side.
@@ -128,7 +133,87 @@ def resolve(token: str, defines: dict[str, str]) -> str | None:
     return None
 
 
-def extract_from_file(path: Path, scopes: Defines) -> list[dict]:
+TYPE_RE = re.compile(r"(?<![A-Za-z0-9_])DEVICE_TYPE_([A-Z_]+)")
+SOURCE_SUFFIXES = {".cpp", ".h", ".hpp"}
+
+
+class Types:
+    """Resolves the OpenRGB device type declared for a detector row."""
+
+    def __init__(self, root: Path):
+        self.root = root
+        self.texts: dict[str, list[tuple[Path, str]]] = {}
+
+    def sources(self, top: str) -> list[tuple[Path, str]]:
+        if top not in self.texts:
+            self.texts[top] = [
+                (f, f.read_text(errors="replace"))
+                for f in sorted((self.root / top).rglob("*"))
+                if f.suffix in SOURCE_SUFFIXES
+            ]
+        return self.texts[top]
+
+    @staticmethod
+    def only(found: set[str]) -> str | None:
+        found = {t for t in found if t != "UNKNOWN"}
+        return next(iter(found)).lower() if len(found) == 1 else None
+
+    def by_table(self, top: str, pid_token: str) -> str | None:
+        if not IDENT_RE.match(pid_token):
+            return None
+        pat = re.compile(r"(?<![A-Za-z0-9_])" + re.escape(pid_token) + r"\s*,\s*DEVICE_TYPE_([A-Z_]+)")
+        found = {m for _, t in self.sources(top) for m in pat.findall(t)}
+        return self.only(found)
+
+    def by_function(self, top: str, func: str) -> str | None:
+        if not IDENT_RE.match(func):
+            return None
+        head = re.compile(r"(?<![A-Za-z0-9_:])" + re.escape(func) + r"\s*\([^;{)]*\)\s*\{")
+        for _, text in self.sources(top):
+            m = head.search(text)
+            if not m:
+                continue
+            depth, i = 1, m.end()
+            while i < len(text) and depth:
+                depth += (text[i] == "{") - (text[i] == "}")
+                i += 1
+            body = text[m.end():i]
+            direct = {t for t in TYPE_RE.findall(body)}
+            if direct:
+                return self.only(direct)
+            found: set[str] = set()
+            for cls in set(re.findall(r"new\s+(RGBController_\w+)", body)):
+                ctor = re.compile(re.escape(cls) + r"::" + re.escape(cls) + r"\s*\(")
+                for _, t in self.sources(top):
+                    cm = ctor.search(t)
+                    if cm:
+                        tm = re.search(r"\btype\s*=\s*DEVICE_TYPE_([A-Z_]+)", t[cm.end():cm.end() + 4000])
+                        if tm:
+                            found.add(tm.group(1))
+                        break
+            return self.only(found)
+        return None
+
+    def by_folder(self, top: str, folder: Path) -> str | None:
+        found = {
+            t
+            for f, text in self.sources(top)
+            if folder in f.parents or f.parent == folder
+            for t in TYPE_RE.findall(text)
+        }
+        return self.only(found)
+
+    def resolve(self, path: Path, args: list[str], flavor_hid: bool, first: int) -> str | None:
+        top = path.relative_to(self.root).parts[0]
+        pid_token = args[first + 1] if flavor_hid and len(args) > first + 1 else ""
+        return (
+            self.by_table(top, pid_token)
+            or (self.by_function(top, args[0]) if args else None)
+            or self.by_folder(top, path.parent)
+        )
+
+
+def extract_from_file(path: Path, scopes: Defines, types: Types) -> list[dict]:
     text = path.read_text(errors="replace")
     defines = scopes.scope(path.resolve())
     controller = path.relative_to(ROOT).parts[0]
@@ -147,9 +232,9 @@ def extract_from_file(path: Path, scopes: Defines) -> list[dict]:
         args = [a.strip() for a in rest.split(",")]
 
         vid = pid = None
+        first = 0 if "WOOTING" in flavor else 1
         if kind == "hid":
             # signature: function, vid, pid, ...; the Wooting wrapper macro is (name, vid, pid)
-            first = 0 if "WOOTING" in flavor else 1
             if len(args) >= first + 2:
                 vid = resolve(args[first], defines)
                 pid = resolve(args[first + 1], defines)
@@ -161,6 +246,7 @@ def extract_from_file(path: Path, scopes: Defines) -> list[dict]:
                 "pid": pid,
                 "controller": controller,
                 "kind": kind,
+                "type": types.resolve(path.resolve(), args, kind == "hid", first),
             }
         )
     return rows
@@ -179,6 +265,7 @@ def main() -> int:
         print(f"error: not found: {ROOT}", file=sys.stderr)
         return 1
     scopes = Defines(ROOT)
+    types = Types(ROOT)
 
     all_rows: list[dict] = []
     files = sorted(ROOT.rglob("*Detect*.cpp")) + sorted(ROOT.rglob("*Detector*.cpp"))
@@ -188,7 +275,7 @@ def main() -> int:
             continue
         seen_files.add(f)
         try:
-            all_rows.extend(extract_from_file(f, scopes))
+            all_rows.extend(extract_from_file(f, scopes, types))
         except Exception as ex:
             print(f"warn: {f}: {ex}", file=sys.stderr)
 
